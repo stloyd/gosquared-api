@@ -1,0 +1,26 @@
+{
+    "name": "stloyd/gosquared-api",
+    "type": "library",
+    "description": "GoSquared API client",
+    "homepage": "https://github.com/stloyd/gosquared-api",
+    "keywords": ["realtime", "analytics", "api", "gosquared"],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Joseph Bielawski",
+            "email": "stloyd+gh@gmail.com"
+        }
+    ],
+    "require": {
+        "php":                ">=5.3.3",
+        "kriswallsmith/buzz": "~0.7"
+    },
+    "autoload": {
+        "psr-0": { "GoSquared\\": "lib/" }
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "0.1.x-dev"
+        }
+    }
+}
