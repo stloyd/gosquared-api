@@ -9,17 +9,16 @@
  * file that was distributed with this source code.
  */
 
-namespace GoSquared\HttpClient;
+namespace GoSquared\HttpClient\Adapter;
+
+use GoSquared\Exception\InvalidArgumentException;
+use GoSquared\HttpClient\HttpClientInterface;
 
 /**
  * @author Joseph Bielawski <stloyd@gmail.com>
  */
-abstract class AbstractHttpClient implements HttpClientInterface
+abstract class AbstractAdapter implements HttpClientInterface
 {
-    /**
-     * @var array
-     */
-    protected $listeners = array();
     /**
      * @var array
      */
@@ -28,6 +27,10 @@ abstract class AbstractHttpClient implements HttpClientInterface
      * @var array
      */
     protected $options = array();
+    /**
+     * @var integer
+     */
+    protected $authenticated = 0;
 
     /**
      * @param array $options
@@ -39,6 +42,18 @@ abstract class AbstractHttpClient implements HttpClientInterface
         $this->configure();
 
         $this->clearHeaders();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getOption($name)
+    {
+        if (!array_key_exists($name, $this->options)) {
+            throw new InvalidArgumentException(sprintf('Undefined option called: "%s"', $name));
+        }
+
+        return $this->options[$name];
     }
 
     /**

@@ -14,7 +14,7 @@ namespace GoSquared;
 use GoSquared\Api\ApiInterface;
 use GoSquared\Exception\InvalidArgumentException;
 use GoSquared\HttpClient\HttpClientInterface;
-use GoSquared\HttpClient\Adapter\Buzz\BuzzHttpClient;
+use GoSquared\HttpClient\Adapter\Buzz\BuzzAdapter;
 
 /**
  * Simple OOP powered GoSquared API client
@@ -28,11 +28,13 @@ class Client
      * @var array
      */
     private $options = array(
-        'api_endpoint' => 'http://api.gosquared.com/latest/',
-        'api_version'  => '1.0',
+        'api_endpoint'    => 'http://api.gosquared.com/latest/',
+        'api_version'     => '1.0',
 
-        'user_agent'   => 'GoSquared PHP API (http://github.com/stloyd/gosquared-api)',
-        'timeout'      => 10,
+        'events_endpoint' => 'https://data.gosquared.com/',
+
+        'user_agent'      => 'GoSquared PHP API (http://github.com/stloyd/gosquared-api)',
+        'timeout'         => 10,
     );
 
     /**
@@ -78,6 +80,10 @@ class Client
 
             case 'engagement':
                 $api = new Api\Engagement();
+                break;
+
+            case 'events':
+                $api = new Api\Events();
                 break;
 
             case 'geo':
@@ -149,7 +155,7 @@ class Client
     public function getHttpClient()
     {
         if (null === $this->httpClient) {
-            $this->httpClient = new BuzzHttpClient($this->options);
+            $this->httpClient = new BuzzAdapter($this->options);
         }
 
         return $this->httpClient;

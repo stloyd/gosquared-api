@@ -27,11 +27,18 @@ abstract class AbstractApi implements ApiInterface
      */
     protected $client;
 
+    protected $baseUrl;
+
     protected $unitCost = 0;
 
     protected $apiKeyRequired    = true;
     protected $siteTokenRequired = true;
     protected $combinePossible   = true;
+
+    public function configure()
+    {
+        $this->baseUrl = $this->client->getOption('api_endpoint');
+    }
 
     /**
      * {@inheritDoc}
@@ -71,14 +78,16 @@ abstract class AbstractApi implements ApiInterface
     public function setClient(HttpClientInterface $client)
     {
         $this->client = $client;
+
+        $this->configure();
     }
 
     /**
      * {@inheritDoc}
      */
-    protected function get($path, array $parameters = array(), $requestHeaders = array())
+    protected function get($path, array $parameters = array())
     {
-        $response = $this->client->get($path, $parameters, $requestHeaders);
+        $response = $this->client->get($this->generateUrl($path), $parameters, $this);
 
         return $response->getContent();
     }
@@ -86,9 +95,9 @@ abstract class AbstractApi implements ApiInterface
     /**
      * {@inheritDoc}
      */
-    protected function post($path, array $parameters = array(), $requestHeaders = array())
+    protected function post($path, array $parameters = array())
     {
-        $response = $this->client->post($path, $parameters, $requestHeaders);
+        $response = $this->client->post($this->generateUrl($path), $parameters, $this);
 
         return $response->getContent();
     }
@@ -98,7 +107,7 @@ abstract class AbstractApi implements ApiInterface
      */
     protected function patch($path, array $parameters = array(), $requestHeaders = array())
     {
-        $response = $this->client->patch($path, $parameters, $requestHeaders);
+        $response = $this->client->patch($this->generateUrl($path), $parameters, $this);
 
         return $response->getContent();
     }
@@ -106,9 +115,9 @@ abstract class AbstractApi implements ApiInterface
     /**
      * {@inheritDoc}
      */
-    protected function put($path, array $parameters = array(), $requestHeaders = array())
+    protected function put($path, array $parameters = array())
     {
-        $response = $this->client->put($path, $parameters, $requestHeaders);
+        $response = $this->client->put($this->generateUrl($path), $parameters, $this);
 
         return $response->getContent();
     }
@@ -116,10 +125,15 @@ abstract class AbstractApi implements ApiInterface
     /**
      * {@inheritDoc}
      */
-    protected function delete($path, array $parameters = array(), $requestHeaders = array())
+    protected function delete($path, array $parameters = array())
     {
-        $response = $this->client->delete($path, $parameters, $requestHeaders);
+        $response = $this->client->delete($this->generateUrl($path), $parameters, $this);
 
         return $response->getContent();
+    }
+
+    protected function generateUrl($path)
+    {
+        return trim($this->baseUrl.$path, '/');
     }
 }

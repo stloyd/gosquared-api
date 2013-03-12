@@ -27,6 +27,6 @@ class Concurrents extends AbstractApi
             throw new InvalidArgumentException('The "presenter" parameter can contain only "old" or "plain" value.');
         }
 
-        return $this->get('concurrens', $parameters);
+        return $this->get('concurrents', $parameters);
     }
 }

@@ -5,6 +5,7 @@ namespace GoSquared\HttpClient\Adapter\Buzz\Listener;
 use Buzz\Listener\ListenerInterface;
 use Buzz\Message\MessageInterface;
 use Buzz\Message\RequestInterface;
+
 use GoSquared\Exception\AuthorizationException;
 use GoSquared\Exception\ApiLimitException;
 use GoSquared\Exception\ErrorException;
@@ -40,7 +41,7 @@ class ErrorListener implements ListenerInterface
                         break;
 
                     default:
-                        throw new ErrorException($content['message'], $response->getStatusCode());
+                        throw new ErrorException(sprintf('%d: %s', $content['code'], $content['message']), $response->getStatusCode());
                         break;
                 }
             }

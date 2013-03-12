@@ -15,9 +15,11 @@ use Buzz\Client\Curl;
 use Buzz\Client\ClientInterface;
 use Buzz\Listener\ListenerInterface;
 
+use GoSquared\Api\ApiInterface;
+use GoSquared\Exception\AuthorizationException;
 use GoSquared\Exception\ErrorException;
 use GoSquared\Exception\InvalidArgumentException;
-use GoSquared\HttpClient\AbstractHttpClient;
+use GoSquared\HttpClient\Adapter\AbstractAdapter;
 use GoSquared\HttpClient\Adapter\Buzz\Listener\AuthListener;
 use GoSquared\HttpClient\Adapter\Buzz\Listener\ErrorListener;
 use GoSquared\HttpClient\Adapter\Buzz\Message\Request;
@@ -26,8 +28,12 @@ use GoSquared\HttpClient\Adapter\Buzz\Message\Response;
 /**
  * @author Joseph Bielawski <stloyd@gmail.com>
  */
-class BuzzHttpClient extends AbstractHttpClient
+class BuzzAdapter extends AbstractAdapter
 {
+    /**
+     * @var ListenerInterface[]
+     */
+    protected $listeners = array();
     /**
      * @var ClientInterface
      */
@@ -51,6 +57,14 @@ class BuzzHttpClient extends AbstractHttpClient
         $this->addListener(
             new AuthListener($siteToken, $apiKey)
         );
+
+        if (!empty($siteToken)) {
+            $this->authenticated = 1;
+        }
+
+        if (!empty($apiKey)) {
+            $this->authenticated = 2;
+        }
     }
 
     /**
@@ -90,54 +104,63 @@ class BuzzHttpClient extends AbstractHttpClient
     /**
      * {@inheritDoc}
      */
-    public function get($path, array $parameters = array(), array $headers = array())
+    public function get($path, array $parameters = array(), ApiInterface $api)
     {
         if (0 < count($parameters)) {
             $path .= (false === strpos($path, '?') ? '?' : '&').http_build_query($parameters, '', '&');
         }
 
-        return $this->request($path, array(), 'GET', $headers);
+        return $this->request($path, array(), 'GET', $api);
     }
 
     /**
      * {@inheritDoc}
      */
-    public function post($path, array $parameters = array(), array $headers = array())
+    public function post($path, array $parameters = array(), ApiInterface $api)
     {
-        return $this->request($path, $parameters, 'POST', $headers);
+        return $this->request($path, $parameters, 'POST', $api);
     }
 
     /**
      * {@inheritDoc}
      */
-    public function patch($path, array $parameters = array(), array $headers = array())
+    public function patch($path, array $parameters = array(), ApiInterface $api)
     {
-        return $this->request($path, $parameters, 'PATCH', $headers);
+        return $this->request($path, $parameters, 'PATCH', $api);
     }
 
     /**
      * {@inheritDoc}
      */
-    public function delete($path, array $parameters = array(), array $headers = array())
+    public function delete($path, array $parameters = array(), ApiInterface $api)
     {
-        return $this->request($path, $parameters, 'DELETE', $headers);
+        return $this->request($path, $parameters, 'DELETE', $api);
     }
 
     /**
      * {@inheritDoc}
      */
-    public function put($path, array $parameters = array(), array $headers = array())
+    public function put($path, array $parameters = array(), ApiInterface $api)
     {
-        return $this->request($path, $parameters, 'PUT', $headers);
+        return $this->request($path, $parameters, 'PUT', $api);
     }
 
     /**
      * {@inheritDoc}
      */
-    public function request($path, array $parameters = array(), $httpMethod = 'GET', array $headers = array())
+    public function request($url, array $parameters = array(), $httpMethod = 'GET', ApiInterface $api)
     {
-        $request = $this->createRequest($httpMethod, $path);
-        $request->addHeaders($headers);
+        if ($api->isApiKeyRequired() || $api->isSiteTokenRequired()) {
+            if ($api->isSiteTokenRequired() && 1 > $this->authenticated) {
+                throw new AuthorizationException('To use this API you must authenticate with `site_token` first!');
+            }
+
+            if ($api->isApiKeyRequired() && 2 > $this->authenticated) {
+                throw new AuthorizationException('To use this API you must authenticate with `api_key` first!');
+            }
+        }
+
+        $request = $this->createRequest($httpMethod, $url);
         $request->setContent($parameters);
 
         $hasListeners = 0 < count($this->listeners);
@@ -168,15 +191,15 @@ class BuzzHttpClient extends AbstractHttpClient
 
     /**
      * @param string $httpMethod
-     * @param string $path
+     * @param string $url
      *
      * @return Request
      */
-    protected function createRequest($httpMethod, $path)
+    protected function createRequest($httpMethod, $url)
     {
         $request = new Request($httpMethod);
         $request->setHeaders($this->headers);
-        $request->fromUrl(trim($this->options['api_endpoint'].$path, '/'));
+        $request->fromUrl($url);
 
         return $request;
     }
