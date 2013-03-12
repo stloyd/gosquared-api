@@ -19,8 +19,8 @@ class Campaigns extends AbstractApi
 {
     protected $unitCost = 1;
 
-    public function show(array $parameters = array())
+    public function show($page = null)
     {
-        return $this->get('campaigns', $parameters);
+        return $this->get('campaigns', array('page' => $page));
     }
 }

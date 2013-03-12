@@ -21,12 +21,12 @@ class Concurrents extends AbstractApi
 {
     protected $unitCost = 1;
 
-    public function show(array $parameters = array())
+    public function show($presenter = null)
     {
-        if (isset($parameters['presenter']) && !in_array($parameters['presenter'], array('old', 'plain'))) {
+        if (null !== $presenter && !in_array($presenter, array('old', 'plain'))) {
             throw new InvalidArgumentException('The "presenter" parameter can contain only "old" or "plain" value.');
         }
 
-        return $this->get('concurrents', $parameters);
+        return $this->get('concurrents', array('presenter' => $presenter));
     }
 }

@@ -17,6 +17,10 @@ namespace GoSquared\Api;
  */
 class ReportPreferences extends AbstractApi
 {
+    protected $parameters = array(
+        'route',
+    );
+
     protected $unitCost = 1;
 
     protected $siteTokenRequired = false;

@@ -19,8 +19,8 @@ class AggregateStats extends AbstractApi
 {
     protected $unitCost = 1;
 
-    public function show(array $parameters = array())
+    public function show($limit = null)
     {
-        return $this->get('aggregateStats', $parameters);
+        return $this->get('aggregateStats', array('limit' => $limit));
     }
 }

@@ -11,6 +11,7 @@
 
 namespace GoSquared\Api;
 
+use GoSquared\Exception\InvalidArgumentException;
 use GoSquared\HttpClient\HttpClientInterface;
 
 /**
@@ -27,8 +28,19 @@ abstract class AbstractApi implements ApiInterface
      */
     protected $client;
 
+    /**
+     * @var string
+     */
     protected $baseUrl;
 
+    /**
+     * @var array
+     */
+    protected $parameters = array();
+
+    /**
+     * @var integer
+     */
     protected $unitCost = 0;
 
     protected $apiKeyRequired    = true;
@@ -83,10 +95,31 @@ abstract class AbstractApi implements ApiInterface
     }
 
     /**
+     * @param array $parameters
+     *
+     * @throws InvalidArgumentException
+     */
+    protected function validate(array $parameters = array())
+    {
+        $invalid = array();
+        foreach (array_keys($parameters) as $key) {
+            if (!in_array($key, $this->parameters)) {
+                $invalid[] = $key;
+            }
+        }
+
+        if (!empty($invalid)) {
+            throw new InvalidArgumentException(sprintf('Unknown parameter(s) set: %s', implode(',', $invalid)));
+        }
+    }
+
+    /**
      * {@inheritDoc}
      */
     protected function get($path, array $parameters = array())
     {
+        $this->validate($parameters);
+
         $response = $this->client->get($this->generateUrl($path), $parameters, $this);
 
         return $response->getContent();
@@ -97,6 +130,8 @@ abstract class AbstractApi implements ApiInterface
      */
     protected function post($path, array $parameters = array())
     {
+        $this->validate($parameters);
+
         $response = $this->client->post($this->generateUrl($path), $parameters, $this);
 
         return $response->getContent();
@@ -105,8 +140,10 @@ abstract class AbstractApi implements ApiInterface
     /**
      * {@inheritDoc}
      */
-    protected function patch($path, array $parameters = array(), $requestHeaders = array())
+    protected function patch($path, array $parameters = array(), $this)
     {
+        $this->validate($parameters);
+
         $response = $this->client->patch($this->generateUrl($path), $parameters, $this);
 
         return $response->getContent();
@@ -117,6 +154,8 @@ abstract class AbstractApi implements ApiInterface
      */
     protected function put($path, array $parameters = array())
     {
+        $this->validate($parameters);
+
         $response = $this->client->put($this->generateUrl($path), $parameters, $this);
 
         return $response->getContent();
@@ -127,6 +166,8 @@ abstract class AbstractApi implements ApiInterface
      */
     protected function delete($path, array $parameters = array())
     {
+        $this->validate($parameters);
+
         $response = $this->client->delete($this->generateUrl($path), $parameters, $this);
 
         return $response->getContent();

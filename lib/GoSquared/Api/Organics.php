@@ -17,6 +17,11 @@ namespace GoSquared\Api;
  */
 class Organics extends AbstractApi
 {
+    protected $parameters = array(
+        'pageHash',
+        'limit',
+    );
+
     protected $unitCost = 1;
 
     protected $combinePossible = false;

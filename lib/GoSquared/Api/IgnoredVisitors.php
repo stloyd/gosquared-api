@@ -11,6 +11,8 @@
 
 namespace GoSquared\Api;
 
+use GoSquared\Exception\InvalidArgumentException;
+
 /**
  * @author Joseph Bielawski <stloyd@gmail.com>
  * @link   https://www.gosquared.com/developer/latest/ignoredVisitors/
@@ -21,6 +23,10 @@ class IgnoredVisitors extends AbstractApi
 
     public function show(array $parameters = array())
     {
+        if (!empty($parameters)) {
+            throw new InvalidArgumentException('The "ignoredVisitors" function don\'t support any parameters.');
+        }
+
         return $this->get('ignoredVisitors', $parameters);
     }
 

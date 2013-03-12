@@ -11,6 +11,8 @@
 
 namespace GoSquared\Api;
 
+use GoSquared\Exception\InvalidArgumentException;
+
 /**
  * @author Joseph Bielawski <stloyd@gmail.com>
  * @link   https://www.gosquared.com/developer/latest/engagement/
@@ -21,6 +23,10 @@ class Engagement extends AbstractApi
 
     public function show(array $parameters = array())
     {
-        return $this->get('engagement', $parameters);
+        if (!empty($parameters)) {
+            throw new InvalidArgumentException('The "engagement" function don\'t support any parameters.');
+        }
+
+        return $this->get('engagement');
     }
 }

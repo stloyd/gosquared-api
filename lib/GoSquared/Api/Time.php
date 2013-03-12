@@ -11,12 +11,12 @@
 
 namespace GoSquared\Api;
 
+use GoSquared\Exception\InvalidArgumentException;
+
 /**
  * @author Joseph Bielawski <stloyd@gmail.com>
  * @link   https://www.gosquared.com/developer/latest/time/
  */
-use GoSquared\Exception\InvalidArgumentException;
-
 class Time extends AbstractApi
 {
     protected $apiKeyRequired    = false;

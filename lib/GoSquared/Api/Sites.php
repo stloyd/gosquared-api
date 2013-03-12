@@ -21,8 +21,8 @@ class Sites extends AbstractApi
 
     protected $siteTokenRequired = false;
 
-    public function show(array $parameters = array())
+    public function show($siteToken = null)
     {
-        return $this->get('sites', $parameters);
+        return $this->get('sites', array('site_token' => $siteToken));
     }
 }
